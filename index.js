@@ -4,24 +4,25 @@ function getRandomInteger(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
+function getRandomArrayEl(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
 function populateSchema(schema, definitions) {
-    if (schema.definitions) definitions = schema.definitions;
-    if (schema.anyOf !== undefined) {
-        let s = schema.anyOf[Math.floor(Math.random() * schema.anyOf.length)];
-        return populateSchema(s, definitions);
-    }
-    if (schema.enum !== undefined) {
-        return schema.enum[Math.floor(Math.random() * schema.enum.length)];
-    }
-    if (schema.type === 'boolean') return Boolean(getRandomInteger(0, 1));
-    if (schema.type === 'null') return null;
-    if (schema.type === 'string') {
-        if (schema.pattern) return 'regex'
-        return 'string';
-    }
-    if (schema.type === 'integer') {
+    if (schema.definitions)
+        definitions = schema.definitions;
+    if (schema.anyOf !== undefined)
+        return populateSchema(getRandomArrayEl(schema.anyOf), definitions);
+    if (schema.enum !== undefined)
+        return getRandomArrayEl(schema.enum);
+    if (schema.type === 'boolean')
+        return Boolean(getRandomInteger(0, 1));
+    if (schema.type === 'null')
+        return null;
+    if (schema.type === 'string')
+        return schema.pattern ? 'regex' : 'string';
+    if (schema.type === 'integer')
         return getRandomInteger(schema.minimum ?? 0, schema.maximum ?? 10);
-    }
     if (schema.type === 'object') {
         return schema.properties ? Object.keys(schema.properties).reduce((acc, property) => {
             acc[property] = populateSchema(schema.properties[property], definitions);
@@ -30,9 +31,10 @@ function populateSchema(schema, definitions) {
     }
     if (schema.type === 'array') {
         if (schema.items === undefined) return [];
-        console.log(schema)
         const entity = schema.items['$ref'].slice(1);
-        return Array.from({ length: getRandomInteger()}).map(_ => populateSchema(definitions[entity], definitions));
+        return Array
+            .from({ length: getRandomInteger(0, 10)})
+            .map(_ => populateSchema(definitions[entity], definitions));
     }
 }
 
