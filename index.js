@@ -25,7 +25,9 @@ function populateSchema(schema, definitions) {
         return getRandomInteger(schema.minimum ?? 0, schema.maximum ?? 10);
     if (schema.type === 'object') {
         return schema.properties ? Object.keys(schema.properties).reduce((acc, property) => {
-            acc[property] = populateSchema(schema.properties[property], definitions);
+            if (schema.required ? schema.required.includes(property) : false) {
+                acc[property] = populateSchema(schema.properties[property], definitions);
+            }
             return acc;
         }, {}) : {};
     }
@@ -42,5 +44,3 @@ module.exports = {
     getRandomInteger,
     populateSchema,
 }
-
-console.log(populateSchema(s))
