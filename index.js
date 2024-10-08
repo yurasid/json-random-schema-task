@@ -11,9 +11,9 @@ function getRandomArrayEl(arr) {
 function populateSchema(schema, definitions) {
     if (schema.definitions)
         definitions = schema.definitions;
-    if (schema.anyOf !== undefined)
+    if (schema.anyOf)
         return populateSchema(getRandomArrayEl(schema.anyOf), definitions);
-    if (schema.enum !== undefined)
+    if (schema.enum)
         return getRandomArrayEl(schema.enum);
     if (schema.type === 'boolean')
         return Boolean(getRandomInteger(0, 1));
@@ -25,7 +25,8 @@ function populateSchema(schema, definitions) {
         return getRandomInteger(schema.minimum ?? 0, schema.maximum ?? 10);
     if (schema.type === 'object') {
         return schema.properties ? Object.keys(schema.properties).reduce((acc, property) => {
-            if (schema.required ? schema.required.includes(property) : false) {
+            const isPropertyRequired = Array.isArray(schema.required) && schema.required.includes(property);
+            if (!schema.required || isPropertyRequired) {
                 acc[property] = populateSchema(schema.properties[property], definitions);
             }
             return acc;
