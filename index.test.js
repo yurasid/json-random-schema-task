@@ -2,10 +2,6 @@ const assert = require("node:assert");
 const test = require('node:test');
 const { populateSchema } = require(".");
 
-const s = require('./json-schema.json');
-
-let random;
-
 test('type stirng', () => {
     const result = populateSchema({ type: "string" });
     assert.equal(typeof result, 'string');
